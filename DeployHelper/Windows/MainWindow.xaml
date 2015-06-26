@@ -1,0 +1,128 @@
+﻿<Window x:Class="DeployHelper.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:com="clr-namespace:DeployHelper.Commons"
+        xmlns:conv="clr-namespace:DeployHelper.Converters"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="DeployHelper"
+        Height="420" Width="850"
+        Loaded="Window_Loaded">
+
+    <Grid>
+        <TextBlock
+            Name="blkSourceRoot" Text="{Binding SourceRootPath}"
+            Margin="15,10,0,0" Width="817"
+            HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <TextBlock
+            Name="blkDeployPath" Text="{Binding DeployPath}"
+            Margin="15,30,0,0" Width="817"
+            HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <TextBlock
+            Text="対象ビルド構成："
+            Margin="15,59,0,0" Width="99"
+            HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <ComboBox
+            Name="cmbTargetConfig" ItemsSource="{Binding TargetConfigItemsSource}" SelectedIndex="0"
+            Margin="119,55,0,0" Width="86"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            SelectionChanged="cmbTargetConfig_SelectionChanged" />
+        <Button
+            Name="btnRefresh" Content="更新"
+            Margin="0,55,10,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            Click="btnRefresh_Click" />
+
+        <DataGrid
+            Name="grdBinaryInfo" ItemsSource="{Binding BinaryInfoGridItemsSource}"
+            Margin="10,84,10,0" Height="222"
+            VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            LoadingRow="grdBinaryInfo_LoadingRow">
+
+            <DataGrid.ItemContainerStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="{x:Static com:DeployStatus.Degrade}">
+                            <Setter Property="Background" Value="LightCoral" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="{x:Static com:DeployStatus.NoDeploy}">
+                            <Setter Property="Background" Value="Yellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="{x:Static com:DeployStatus.Updated}">
+                            <Setter Property="Background" Value="Yellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="{x:Static com:DeployStatus.NoBuild}">
+                            <Setter Property="Background" Value="LightGray" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.ItemContainerStyle>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Header="状態"
+                    Binding="{Binding Status, Converter={StaticResource DeployStatusConverter}}"
+                    IsReadOnly="True" />
+                <DataGridTemplateColumn Header="選択">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Visibility="{Binding Status, Converter={StaticResource StatusVisibilityConverter}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    Header="バイナリファイル名"
+                    Binding="{Binding BinaryName}"
+                    IsReadOnly="True" />
+                <DataGridTextColumn
+                    Header="ビルド日時"
+                    Binding="{Binding BuildedTimestamp}"
+                    IsReadOnly="True" />
+                <DataGridTextColumn
+                    Header="配置日時"
+                    Binding="{Binding DeployedTimestamp}"
+                    IsReadOnly="True" />
+                <DataGridTextColumn
+                    Header="プロジェクトパス"
+                    Binding="{Binding ProjectPath}"
+                    IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <ComboBox
+            Name="cmbSelectStatus" ItemsSource="{Binding SelectStatusItemsSource}"
+            SelectedValuePath="Key" DisplayMemberPath="Value" SelectedIndex="0"
+            Margin="10,311,0,0" Width="204"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}" />
+        <Button
+            Name="btnStatusSelect" Content="状態選択"
+            Margin="219,311,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            Click="btnStatusSelect_Click" />
+        <Button
+            Name="btnAllSelect" Content="全選択"
+            Margin="349,311,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            Click="btnAllSelect_Click" />
+        <Button
+            Name="btnAllUnselect" Content="全解除"
+            Margin="429,311,0,0"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            Click="btnAllUnselect_Click" />
+        <Button
+            Name="btnDeploy" Content="配置"
+            Margin="0,311,10,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+            Click="btnDeploy_Click" />
+    </Grid>
+</Window>
